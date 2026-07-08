@@ -1,226 +1,355 @@
-const denominations = [
-  500, 200, 100, 50, 20, 10, 5,
-  2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01
+const money = [
+  { value: 1000, title: "1000 грн", text: "Одна тисяча гривень", img: "images/1000.png" },
+  { value: 500, title: "500 грн", text: "Пʼятсот гривень", img: "images/500.png" },
+  { value: 200, title: "200 грн", text: "Двісті гривень", img: "images/200.png" },
+  { value: 100, title: "100 грн", text: "Сто гривень", img: "images/100.png" },
+  { value: 50, title: "50 грн", text: "Пʼятдесят гривень", img: "images/50.png" },
+  { value: 20, title: "20 грн", text: "Двадцять гривень", img: "images/20.png" },
+  { value: 10, title: "10 грн", text: "Десять гривень", img: "images/10.png" },
+  { value: 5, title: "5 грн", text: "Пʼять гривень", img: "images/5.png" },
+  { value: 2, title: "2 грн", text: "Дві гривні", img: "images/2.png" },
+  { value: 1, title: "1 грн", text: "Одна гривня", img: "images/1.png" }
 ];
 
-const moneyGrid = document.getElementById("moneyGrid");
-const totalEl = document.getElementById("total");
-const historySelect = document.getElementById("historySelect");
-const historyInfo = document.getElementById("historyInfo");
+const extra = [
+  { id: "safe", title: "🏦 Сейф", text: "Кошти в сейфі" },
+  { id: "packed", title: "📦 Запаковані", text: "Запаковані купюри / гривні" },
+  { id: "damaged", title: "🧾 Порвані", text: "Пошкоджені купюри / гривні" }
+];
 
-function formatMoney(value) {
-  return value.toFixed(2) + " €";
+const moneyRows = document.getElementById("moneyRows");
+const extraRows = document.getElementById("extraRows");
+
+const actualTotal = document.getElementById("actualTotal");
+const expectedTotal = document.getElementById("expectedTotal");
+const differenceTotal = document.getElementById("differenceTotal");
+
+const expectedInput = document.getElementById("expected");
+const commentInput = document.getElementById("comment");
+const cashNameInput = document.getElementById("cashName");
+
+const historyList = document.getElementById("historyList");
+const searchHistory = document.getElementById("searchHistory");
+
+function formatMoney(num) {
+  return Number(num || 0).toLocaleString("uk-UA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }) + " грн";
 }
 
-function nowLocalDateTime() {
-  const d = new Date();
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0, 16);
+function updateClock() {
+  const now = new Date();
+
+  document.getElementById("liveDate").textContent =
+    now.toLocaleDateString("uk-UA");
+
+  document.getElementById("liveTime").textContent =
+    now.toLocaleTimeString("uk-UA");
+
+  document.getElementById("liveDay").textContent =
+    now.toLocaleDateString("uk-UA", { weekday: "long" });
 }
 
-document.getElementById("countDate").value = nowLocalDateTime();
+setInterval(updateClock, 1000);
+updateClock();
 
-function createGrid() {
-  moneyGrid.innerHTML = "";
+function renderMoney() {
+  moneyRows.innerHTML = "";
 
-  denominations.forEach(value => {
-    const div = document.createElement("div");
-    div.className = "money-item";
+  money.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "money-row";
 
-    div.innerHTML = `
-      <span>${formatMoney(value)}</span>
-      <small>Кількість</small>
-      <input type="number" min="0" value="0" data-value="${value}">
-      <small class="subtotal">0.00 €</small>
+    row.innerHTML = `
+      <div class="nominal">
+        <img src="${item.img}" alt="${item.title}" onerror="this.style.display='none'">
+        <div>
+          ${item.title}
+          <small>${item.text}</small>
+        </div>
+      </div>
+
+      <input 
+        type="number" 
+        min="0" 
+        inputmode="numeric" 
+        placeholder="" 
+        data-type="money" 
+        data-value="${item.value}"
+      >
+
+      <div class="sum" data-sum="${item.value}">0,00 грн</div>
     `;
 
-    moneyGrid.appendChild(div);
-  });
-
-  document.querySelectorAll("[data-value]").forEach(input => {
-    input.addEventListener("input", calculateTotal);
+    moneyRows.appendChild(row);
   });
 }
 
-function calculateTotal() {
+function renderExtra() {
+  extraRows.innerHTML = "";
+
+  extra.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "extra-row";
+
+    row.innerHTML = `
+      <div class="nominal">
+        <div>
+          ${item.title}
+          <small>${item.text}</small>
+        </div>
+      </div>
+
+      <input 
+        type="number" 
+        step="0.01" 
+        min="0" 
+        inputmode="decimal" 
+        placeholder="" 
+        data-type="extra" 
+        data-id="${item.id}"
+      >
+
+      <div class="sum" data-extra-sum="${item.id}">0,00 грн</div>
+    `;
+
+    extraRows.appendChild(row);
+  });
+}
+
+function calculate() {
   let total = 0;
 
-  document.querySelectorAll("[data-value]").forEach(input => {
+  document.querySelectorAll('[data-type="money"]').forEach(input => {
+    const count = Number(input.value || 0);
     const value = Number(input.dataset.value);
-    const count = Number(input.value) || 0;
-    const subtotal = value * count;
+    const sum = count * value;
 
-    input.parentElement.querySelector(".subtotal").textContent =
-      "Сума: " + formatMoney(subtotal);
+    total += sum;
 
-    total += subtotal;
+    const sumEl = document.querySelector(`[data-sum="${value}"]`);
+    if (sumEl) sumEl.textContent = formatMoney(sum);
   });
 
-  totalEl.textContent = formatMoney(total);
-  return total;
+  document.querySelectorAll('[data-type="extra"]').forEach(input => {
+    const value = Number(input.value || 0);
+    total += value;
+
+    const sumEl = document.querySelector(`[data-extra-sum="${input.dataset.id}"]`);
+    if (sumEl) sumEl.textContent = formatMoney(value);
+  });
+
+  const expected = Number(expectedInput.value || 0);
+  const difference = total - expected;
+
+  actualTotal.textContent = formatMoney(total);
+  expectedTotal.textContent = formatMoney(expected);
+  differenceTotal.textContent = formatMoney(difference);
+
+  differenceTotal.classList.remove("green", "red", "orange");
+
+  if (difference === 0) {
+    differenceTotal.classList.add("green");
+  } else if (difference < 0) {
+    differenceTotal.classList.add("red");
+  } else {
+    differenceTotal.classList.add("orange");
+  }
+
+  autoSaveDraft();
+
+  return {
+    total,
+    expected,
+    difference
+  };
 }
 
-function getFormData() {
-  const items = [];
+function getData() {
+  const calc = calculate();
 
-  document.querySelectorAll("[data-value]").forEach(input => {
-    const value = Number(input.dataset.value);
-    const count = Number(input.value) || 0;
+  const items = money.map(item => {
+    const input = document.querySelector(`[data-value="${item.value}"]`);
+    const count = Number(input.value || 0);
 
-    items.push({
-      denomination: value,
-      count: count,
-      sum: value * count
-    });
+    return {
+      title: item.title,
+      value: item.value,
+      count,
+      sum: count * item.value
+    };
   });
+
+  const extras = extra.map(item => {
+    const input = document.querySelector(`[data-id="${item.id}"]`);
+    const value = Number(input.value || 0);
+
+    return {
+      title: item.title,
+      value
+    };
+  });
+
+  const now = new Date();
 
   return {
     id: Date.now(),
-    date: document.getElementById("countDate").value,
-    comment: document.getElementById("comment").value,
-    total: calculateTotal(),
-    items
+    cashName: cashNameInput.value,
+    comment: commentInput.value,
+    date: now.toLocaleDateString("uk-UA"),
+    time: now.toLocaleTimeString("uk-UA"),
+    iso: now.toISOString(),
+    items,
+    extras,
+    total: calc.total,
+    expected: calc.expected,
+    difference: calc.difference
   };
-}
-
-function getHistory() {
-  return JSON.parse(localStorage.getItem("cashCounts") || "[]");
-}
-
-function setHistory(data) {
-  localStorage.setItem("cashCounts", JSON.stringify(data));
 }
 
 function saveCount() {
-  const data = getFormData();
+  const data = getData();
   const history = getHistory();
 
   history.unshift(data);
-  setHistory(history);
+  localStorage.setItem("cashHistoryV2", JSON.stringify(history));
 
   renderHistory();
+
   alert("Перерахунок збережено ✅");
 }
 
-function renderHistory() {
-  const history = getHistory();
-  historySelect.innerHTML = "";
+function getHistory() {
+  return JSON.parse(localStorage.getItem("cashHistoryV2") || "[]");
+}
 
-  if (history.length === 0) {
-    historySelect.innerHTML = `<option>Немає збережених перерахунків</option>`;
-    historyInfo.innerHTML = "";
+function renderHistory() {
+  const query = searchHistory.value.toLowerCase();
+  const history = getHistory();
+
+  historyList.innerHTML = "";
+
+  const filtered = history.filter(item => {
+    const text = `
+      ${item.date}
+      ${item.time}
+      ${item.total}
+      ${item.comment}
+      ${item.cashName}
+    `.toLowerCase();
+
+    return text.includes(query);
+  });
+
+  if (filtered.length === 0) {
+    historyList.innerHTML = "<p>Немає збережених перерахунків</p>";
     return;
   }
 
-  history.forEach(item => {
-    const option = document.createElement("option");
-    option.value = item.id;
-    option.textContent = `${item.date} — ${formatMoney(item.total)} ${item.comment ? "— " + item.comment : ""}`;
-    historySelect.appendChild(option);
-  });
+  filtered.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "history-item";
 
-  loadSelected();
+    div.innerHTML = `
+      <div>
+        <strong>${item.date} ${item.time}</strong><br>
+        ${item.cashName || "Каса"} — ${item.comment || "Без коментаря"}
+      </div>
+      <strong>${formatMoney(item.total)}</strong>
+    `;
+
+    div.onclick = () => loadHistory(item.id);
+
+    historyList.appendChild(div);
+  });
 }
 
-function loadSelected() {
+function loadHistory(id) {
   const history = getHistory();
-  const id = Number(historySelect.value);
-  const selected = history.find(item => item.id === id);
+  const item = history.find(x => x.id === id);
 
-  if (!selected) return;
+  if (!item) return;
 
-  document.getElementById("countDate").value = selected.date;
-  document.getElementById("comment").value = selected.comment || "";
+  cashNameInput.value = item.cashName || "";
+  commentInput.value = item.comment || "";
+  expectedInput.value = item.expected || "";
 
-  selected.items.forEach(item => {
-    const input = document.querySelector(`[data-value="${item.denomination}"]`);
-    if (input) input.value = item.count;
+  item.items.forEach(row => {
+    const input = document.querySelector(`[data-value="${row.value}"]`);
+    if (input) input.value = row.count || "";
   });
 
-  calculateTotal();
+  item.extras.forEach(row => {
+    const clearTitle = row.title || "";
 
-  historyInfo.innerHTML = `
-    <h3>Перерахунок від ${selected.date}</h3>
-    <p><b>Коментар:</b> ${selected.comment || "—"}</p>
-    <p><b>Загальна сума:</b> ${formatMoney(selected.total)}</p>
-  `;
-}
+    if (clearTitle.includes("Сейф")) {
+      document.querySelector('[data-id="safe"]').value = row.value || "";
+    }
 
-function deleteSelected() {
-  const id = Number(historySelect.value);
-  let history = getHistory();
+    if (clearTitle.includes("Запаковані")) {
+      document.querySelector('[data-id="packed"]').value = row.value || "";
+    }
 
-  history = history.filter(item => item.id !== id);
-  setHistory(history);
+    if (clearTitle.includes("Порвані")) {
+      document.querySelector('[data-id="damaged"]').value = row.value || "";
+    }
+  });
 
-  renderHistory();
-}
+  calculate();
 
-function clearForm() {
-  document.querySelectorAll("[data-value]").forEach(input => input.value = 0);
-  document.getElementById("comment").value = "";
-  document.getElementById("countDate").value = nowLocalDateTime();
-  calculateTotal();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function printReport() {
+  calculate();
   window.print();
 }
 
-function exportJSON() {
-  const history = getHistory();
-  const blob = new Blob([JSON.stringify(history, null, 2)], {
-    type: "application/json"
-  });
-
-  downloadFile(blob, "cash-history.json");
-}
-
-function exportCSV() {
-  const history = getHistory();
-
-  let csv = "Дата;Коментар;Номінал;Кількість;Сума;Загальна сума\n";
-
-  history.forEach(entry => {
-    entry.items.forEach(item => {
-      csv += `${entry.date};${entry.comment || ""};${item.denomination};${item.count};${item.sum.toFixed(2)};${entry.total.toFixed(2)}\n`;
-    });
-  });
-
-  const blob = new Blob([csv], {
-    type: "text/csv;charset=utf-8"
-  });
-
-  downloadFile(blob, "cash-history.csv");
-}
-
-function downloadFile(blob, filename) {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-}
-
-function importJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      setHistory(data);
-      renderHistory();
-      alert("Файл імпортовано ✅");
-    } catch {
-      alert("Помилка файлу ❌");
-    }
+function autoSaveDraft() {
+  const draft = {
+    cashName: cashNameInput.value,
+    comment: commentInput.value,
+    expected: expectedInput.value,
+    money: {},
+    extra: {}
   };
 
-  reader.readAsText(file);
+  document.querySelectorAll('[data-type="money"]').forEach(input => {
+    draft.money[input.dataset.value] = input.value;
+  });
+
+  document.querySelectorAll('[data-type="extra"]').forEach(input => {
+    draft.extra[input.dataset.id] = input.value;
+  });
+
+  localStorage.setItem("cashDraftV2", JSON.stringify(draft));
 }
 
-createGrid();
+function restoreDraft() {
+  const draft = JSON.parse(localStorage.getItem("cashDraftV2") || "null");
+  if (!draft) return;
+
+  cashNameInput.value = draft.cashName || "";
+  commentInput.value = draft.comment || "";
+  expectedInput.value = draft.expected || "";
+
+  Object.keys(draft.money || {}).forEach(value => {
+    const input = document.querySelector(`[data-value="${value}"]`);
+    if (input) input.value = draft.money[value];
+  });
+
+  Object.keys(draft.extra || {}).forEach(id => {
+    const input = document.querySelector(`[data-id="${id}"]`);
+    if (input) input.value = draft.extra[id];
+  });
+}
+
+document.addEventListener("input", calculate);
+searchHistory.addEventListener("input", renderHistory);
+
+renderMoney();
+renderExtra();
+restoreDraft();
+calculate();
 renderHistory();
-calculateTotal();
