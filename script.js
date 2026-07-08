@@ -5,7 +5,6 @@ const money = [
   { value: 100, title: "100 грн", text: "Купюра", img: "images/100.png", type: "banknote" },
   { value: 50, title: "50 грн", text: "Купюра", img: "images/50.png", type: "banknote" },
   { value: 20, title: "20 грн", text: "Купюра", img: "images/20.png", type: "banknote" },
-
   { value: 10, title: "10 грн", text: "Монета", img: "images/10.png", type: "coin" },
   { value: 5, title: "5 грн", text: "Монета", img: "images/5.png", type: "coin" },
   { value: 2, title: "2 грн", text: "Монета", img: "images/2.png", type: "coin" },
@@ -238,11 +237,14 @@ function saveCount() {
   const history = getHistory();
 
   history.unshift(data);
-  localStorage.setItem("cashHistoryV3", JSON.stringify(history));
+
+  const limitedHistory = history.slice(0, 30);
+
+  localStorage.setItem("cashHistoryV3", JSON.stringify(limitedHistory));
 
   renderHistory();
 
-  alert("Перерахунок збережено ✅");
+  alert("Перерахунок збережено ✅ Збережено останні 30 підрахунків.");
 }
 
 function getHistory() {
