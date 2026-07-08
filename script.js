@@ -1,20 +1,21 @@
 const money = [
-  { value: 1000, title: "1000 грн", text: "Одна тисяча гривень", img: "images/1000.png" },
-  { value: 500, title: "500 грн", text: "Пʼятсот гривень", img: "images/500.png" },
-  { value: 200, title: "200 грн", text: "Двісті гривень", img: "images/200.png" },
-  { value: 100, title: "100 грн", text: "Сто гривень", img: "images/100.png" },
-  { value: 50, title: "50 грн", text: "Пʼятдесят гривень", img: "images/50.png" },
-  { value: 20, title: "20 грн", text: "Двадцять гривень", img: "images/20.png" },
-  { value: 10, title: "10 грн", text: "Десять гривень", img: "images/10.png" },
-  { value: 5, title: "5 грн", text: "Пʼять гривень", img: "images/5.png" },
-  { value: 2, title: "2 грн", text: "Дві гривні", img: "images/2.png" },
-  { value: 1, title: "1 грн", text: "Одна гривня", img: "images/1.png" }
+  { value: 1000, title: "1000 грн", text: "Купюра", img: "images/1000.png", type: "banknote" },
+  { value: 500, title: "500 грн", text: "Купюра", img: "images/500.png", type: "banknote" },
+  { value: 200, title: "200 грн", text: "Купюра", img: "images/200.png", type: "banknote" },
+  { value: 100, title: "100 грн", text: "Купюра", img: "images/100.png", type: "banknote" },
+  { value: 50, title: "50 грн", text: "Купюра", img: "images/50.png", type: "banknote" },
+  { value: 20, title: "20 грн", text: "Купюра", img: "images/20.png", type: "banknote" },
+
+  { value: 10, title: "10 грн", text: "Монета", img: "images/10.png", type: "coin" },
+  { value: 5, title: "5 грн", text: "Монета", img: "images/5.png", type: "coin" },
+  { value: 2, title: "2 грн", text: "Монета", img: "images/2.png", type: "coin" },
+  { value: 1, title: "1 грн", text: "Монета", img: "images/1.png", type: "coin" }
 ];
 
 const extra = [
   { id: "safe", title: "🏦 Сейф", text: "Кошти в сейфі" },
-  { id: "packed", title: "📦 Запаковані", text: "Запаковані купюри / гривні" },
-  { id: "damaged", title: "🧾 Порвані", text: "Пошкоджені купюри / гривні" }
+  { id: "packed", title: "📦 Запаковані", text: "Запаковані купюри / монети" },
+  { id: "damaged", title: "🧾 Порвані", text: "Пошкоджені купюри / монети" }
 ];
 
 const moneyRows = document.getElementById("moneyRows");
@@ -31,6 +32,17 @@ const cashNameInput = document.getElementById("cashName");
 const historyList = document.getElementById("historyList");
 const searchHistory = document.getElementById("searchHistory");
 
+function parseAmount(value) {
+  if (!value) return 0;
+
+  const cleaned = String(value)
+    .replace(/\s/g, "")
+    .replace(",", ".");
+
+  const number = Number(cleaned);
+  return isNaN(number) ? 0 : number;
+}
+
 function formatMoney(num) {
   return Number(num || 0).toLocaleString("uk-UA", {
     minimumFractionDigits: 2,
@@ -38,17 +50,29 @@ function formatMoney(num) {
   }) + " грн";
 }
 
+function getKyivDate() {
+  return new Date().toLocaleDateString("uk-UA", {
+    timeZone: "Europe/Kyiv"
+  });
+}
+
+function getKyivTime() {
+  return new Date().toLocaleTimeString("uk-UA", {
+    timeZone: "Europe/Kyiv"
+  });
+}
+
+function getKyivDay() {
+  return new Date().toLocaleDateString("uk-UA", {
+    timeZone: "Europe/Kyiv",
+    weekday: "long"
+  });
+}
+
 function updateClock() {
-  const now = new Date();
-
-  document.getElementById("liveDate").textContent =
-    now.toLocaleDateString("uk-UA");
-
-  document.getElementById("liveTime").textContent =
-    now.toLocaleTimeString("uk-UA");
-
-  document.getElementById("liveDay").textContent =
-    now.toLocaleDateString("uk-UA", { weekday: "long" });
+  document.getElementById("liveDate").textContent = getKyivDate();
+  document.getElementById("liveTime").textContent = getKyivTime();
+  document.getElementById("liveDay").textContent = getKyivDay();
 }
 
 setInterval(updateClock, 1000);
@@ -61,9 +85,11 @@ function renderMoney() {
     const row = document.createElement("div");
     row.className = "money-row";
 
+    const imgClass = item.type === "coin" ? "coin-img" : "";
+
     row.innerHTML = `
       <div class="nominal">
-        <img src="${item.img}" alt="${item.title}" onerror="this.style.display='none'">
+        <img class="${imgClass}" src="${item.img}" alt="${item.title}" onerror="this.style.display='none'">
         <div>
           ${item.title}
           <small>${item.text}</small>
@@ -102,9 +128,7 @@ function renderExtra() {
       </div>
 
       <input 
-        type="number" 
-        step="0.01" 
-        min="0" 
+        type="text" 
         inputmode="decimal" 
         placeholder="" 
         data-type="extra" 
@@ -133,14 +157,14 @@ function calculate() {
   });
 
   document.querySelectorAll('[data-type="extra"]').forEach(input => {
-    const value = Number(input.value || 0);
+    const value = parseAmount(input.value);
     total += value;
 
     const sumEl = document.querySelector(`[data-extra-sum="${input.dataset.id}"]`);
     if (sumEl) sumEl.textContent = formatMoney(value);
   });
 
-  const expected = Number(expectedInput.value || 0);
+  const expected = parseAmount(expectedInput.value);
   const difference = total - expected;
 
   actualTotal.textContent = formatMoney(total);
@@ -176,6 +200,7 @@ function getData() {
     return {
       title: item.title,
       value: item.value,
+      type: item.type,
       count,
       sum: count * item.value
     };
@@ -183,23 +208,23 @@ function getData() {
 
   const extras = extra.map(item => {
     const input = document.querySelector(`[data-id="${item.id}"]`);
-    const value = Number(input.value || 0);
+    const value = parseAmount(input.value);
 
     return {
+      id: item.id,
       title: item.title,
       value
     };
   });
 
-  const now = new Date();
-
   return {
     id: Date.now(),
     cashName: cashNameInput.value,
     comment: commentInput.value,
-    date: now.toLocaleDateString("uk-UA"),
-    time: now.toLocaleTimeString("uk-UA"),
-    iso: now.toISOString(),
+    date: getKyivDate(),
+    time: getKyivTime(),
+    day: getKyivDay(),
+    iso: new Date().toISOString(),
     items,
     extras,
     total: calc.total,
@@ -213,7 +238,7 @@ function saveCount() {
   const history = getHistory();
 
   history.unshift(data);
-  localStorage.setItem("cashHistoryV2", JSON.stringify(history));
+  localStorage.setItem("cashHistoryV3", JSON.stringify(history));
 
   renderHistory();
 
@@ -221,7 +246,7 @@ function saveCount() {
 }
 
 function getHistory() {
-  return JSON.parse(localStorage.getItem("cashHistoryV2") || "[]");
+  return JSON.parse(localStorage.getItem("cashHistoryV3") || "[]");
 }
 
 function renderHistory() {
@@ -273,7 +298,7 @@ function loadHistory(id) {
 
   cashNameInput.value = item.cashName || "";
   commentInput.value = item.comment || "";
-  expectedInput.value = item.expected || "";
+  expectedInput.value = item.expected ? String(item.expected).replace(".", ",") : "";
 
   item.items.forEach(row => {
     const input = document.querySelector(`[data-value="${row.value}"]`);
@@ -281,19 +306,8 @@ function loadHistory(id) {
   });
 
   item.extras.forEach(row => {
-    const clearTitle = row.title || "";
-
-    if (clearTitle.includes("Сейф")) {
-      document.querySelector('[data-id="safe"]').value = row.value || "";
-    }
-
-    if (clearTitle.includes("Запаковані")) {
-      document.querySelector('[data-id="packed"]').value = row.value || "";
-    }
-
-    if (clearTitle.includes("Порвані")) {
-      document.querySelector('[data-id="damaged"]').value = row.value || "";
-    }
+    const input = document.querySelector(`[data-id="${row.id}"]`);
+    if (input) input.value = row.value ? String(row.value).replace(".", ",") : "";
   });
 
   calculate();
@@ -301,8 +315,101 @@ function loadHistory(id) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function printReport() {
+function clearForm() {
+  document.querySelectorAll('[data-type="money"]').forEach(input => {
+    input.value = "";
+  });
+
+  document.querySelectorAll('[data-type="extra"]').forEach(input => {
+    input.value = "";
+  });
+
+  expectedInput.value = "";
+  commentInput.value = "";
+
+  localStorage.removeItem("cashDraftV3");
+
   calculate();
+}
+
+function buildPrintReport() {
+  const data = getData();
+
+  const rows = data.items.map(item => `
+    <tr>
+      <td>${item.title}</td>
+      <td>${item.type === "coin" ? "Монета" : "Купюра"}</td>
+      <td class="print-right">${item.count || ""}</td>
+      <td class="print-right">${formatMoney(item.sum)}</td>
+    </tr>
+  `).join("");
+
+  const extraRows = data.extras.map(item => `
+    <tr>
+      <td>${item.title.replace("🏦", "").replace("📦", "").replace("🧾", "").trim()}</td>
+      <td>Додатково</td>
+      <td class="print-right">—</td>
+      <td class="print-right">${formatMoney(item.value)}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("printArea").innerHTML = `
+    <div class="print-sheet">
+      <div class="print-title">ПІДРАХУНОК ГОТІВКИ В КАСІ</div>
+      <div class="print-subtitle">Київський час: ${data.date}, ${data.time}, ${data.day}</div>
+
+      <div class="print-meta">
+        <div class="print-box"><b>Назва каси:</b> ${data.cashName || "—"}</div>
+        <div class="print-box"><b>Дата і час:</b> ${data.date} ${data.time}</div>
+      </div>
+
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>Номінал / категорія</th>
+            <th>Тип</th>
+            <th class="print-right">Кількість</th>
+            <th class="print-right">Сума</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+          ${extraRows}
+        </tbody>
+      </table>
+
+      <div class="print-summary">
+        <div>
+          Очікувана сума
+          <strong>${formatMoney(data.expected)}</strong>
+        </div>
+
+        <div>
+          Фактично пораховано
+          <strong>${formatMoney(data.total)}</strong>
+        </div>
+
+        <div>
+          Різниця
+          <strong>${formatMoney(data.difference)}</strong>
+        </div>
+      </div>
+
+      <div class="print-comment">
+        <b>Коментар:</b><br>
+        ${data.comment || "—"}
+      </div>
+
+      <div class="print-signatures">
+        <div>Підпис касира</div>
+        <div>Підпис перевіряючого</div>
+      </div>
+    </div>
+  `;
+}
+
+function printReport() {
+  buildPrintReport();
   window.print();
 }
 
@@ -323,11 +430,11 @@ function autoSaveDraft() {
     draft.extra[input.dataset.id] = input.value;
   });
 
-  localStorage.setItem("cashDraftV2", JSON.stringify(draft));
+  localStorage.setItem("cashDraftV3", JSON.stringify(draft));
 }
 
 function restoreDraft() {
-  const draft = JSON.parse(localStorage.getItem("cashDraftV2") || "null");
+  const draft = JSON.parse(localStorage.getItem("cashDraftV3") || "null");
   if (!draft) return;
 
   cashNameInput.value = draft.cashName || "";
@@ -345,6 +452,29 @@ function restoreDraft() {
   });
 }
 
+async function updateVisitorCounter() {
+  const el = document.getElementById("visitorCounter");
+
+  const namespace = "kasa.uz.ua";
+  const action = "view";
+  const key = "cash-calculator-v3";
+
+  const url = `https://counterapi.com/api/${namespace}/${action}/${key}?unique=true`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data && typeof data.value !== "undefined") {
+      el.textContent = data.value;
+    } else {
+      el.textContent = "—";
+    }
+  } catch (error) {
+    el.textContent = "—";
+  }
+}
+
 document.addEventListener("input", calculate);
 searchHistory.addEventListener("input", renderHistory);
 
@@ -353,3 +483,4 @@ renderExtra();
 restoreDraft();
 calculate();
 renderHistory();
+updateVisitorCounter();
