@@ -1,0 +1,161 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #1d3557, #050505);
+  color: #fff;
+}
+
+.app {
+  max-width: 1100px;
+  margin: auto;
+  padding: 25px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+header h1 {
+  font-size: 38px;
+  margin-bottom: 5px;
+}
+
+header p {
+  color: #ccc;
+}
+
+.panel {
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 22px;
+  padding: 25px;
+  margin-bottom: 25px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: bold;
+}
+
+input, select {
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.money-item {
+  background: rgba(255,255,255,0.12);
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.money-item span {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.money-item small {
+  display: block;
+  color: #ccc;
+  margin: 8px 0;
+}
+
+.total-box {
+  margin-top: 25px;
+  padding: 25px;
+  background: linear-gradient(135deg, #00b894, #0984e3);
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-box span {
+  font-size: 22px;
+}
+
+.total-box strong {
+  font-size: 42px;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+button, .import {
+  border: none;
+  background: #fff;
+  color: #111;
+  padding: 13px 18px;
+  border-radius: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover, .import:hover {
+  transform: translateY(-2px);
+}
+
+.danger {
+  background: #ff4757;
+  color: white;
+}
+
+.import input {
+  display: none;
+}
+
+.history-info {
+  margin-top: 20px;
+  line-height: 1.7;
+  color: #eee;
+}
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .buttons, .danger, select {
+    display: none;
+  }
+
+  .panel {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    color: black;
+  }
+
+  .total-box {
+    color: black;
+    background: #eee;
+  }
+}
