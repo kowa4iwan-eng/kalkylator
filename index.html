@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Калькулятор каси</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>💶 Калькулятор каси</h1>
+      <p>Купюри, монети, друк і архів перерахунків</p>
+    </header>
+
+    <section class="panel">
+      <div class="top-row">
+        <label>
+          Дата і час перерахунку
+          <input type="datetime-local" id="countDate">
+        </label>
+
+        <label>
+          Коментар
+          <input type="text" id="comment" placeholder="Наприклад: каса вечір">
+        </label>
+      </div>
+
+      <div class="grid" id="moneyGrid"></div>
+
+      <div class="total-box">
+        <span>Загальна сума</span>
+        <strong id="total">0.00 €</strong>
+      </div>
+
+      <div class="buttons">
+        <button onclick="saveCount()">💾 Зберегти</button>
+        <button onclick="printReport()">🖨️ Друк</button>
+        <button onclick="clearForm()">🧹 Очистити</button>
+        <button onclick="exportJSON()">⬇️ Експорт JSON</button>
+        <button onclick="exportCSV()">⬇️ Експорт CSV</button>
+        <label class="import">
+          ⬆️ Імпорт JSON
+          <input type="file" accept=".json" onchange="importJSON(event)">
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>📁 Архів перерахунків</h2>
+
+      <div class="top-row">
+        <label>
+          Вибрати перерахунок
+          <select id="historySelect" onchange="loadSelected()"></select>
+        </label>
+
+        <button class="danger" onclick="deleteSelected()">🗑️ Видалити</button>
+      </div>
+
+      <div id="historyInfo" class="history-info"></div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
