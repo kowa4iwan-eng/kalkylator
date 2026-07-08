@@ -18,9 +18,12 @@
 <div class="app">
 
   <header class="header">
-    <div>
-      <h1>💼 Підрахунок готівки в касі</h1>
-      <p>Швидко. Зручно. Точно. Київський час.</p>
+    <div class="brand">
+      <div class="brand-icon">₴</div>
+      <div>
+        <h1>Підрахунок готівки в касі</h1>
+        <p>Швидко. Зручно. Точно. Київський час.</p>
+      </div>
     </div>
 
     <div class="clock">
@@ -49,7 +52,10 @@
   </section>
 
   <section class="card">
-    <h2>Купюри та монети</h2>
+    <div class="section-title">
+      <h2>Купюри та монети</h2>
+      <span>гривня ₴</span>
+    </div>
 
     <div class="table">
       <div class="table-head">
@@ -63,7 +69,10 @@
   </section>
 
   <section class="card">
-    <h2>Додатково</h2>
+    <div class="section-title">
+      <h2>Додатково</h2>
+      <span>додається до каси</span>
+    </div>
 
     <div class="table">
       <div id="extraRows"></div>
@@ -88,13 +97,16 @@
   </section>
 
   <div class="actions">
-    <button onclick="printReport()">🖨️ Друк</button>
+    <button onclick="printReport()">🖨️ Друк / PDF</button>
     <button class="clear" onclick="clearForm()">🧹 Очистити</button>
     <button class="save" onclick="saveCount()">💾 Зберегти</button>
   </div>
 
   <section class="card">
-    <h2>📁 Архів перерахунків</h2>
+    <div class="section-title">
+      <h2>📁 Архів перерахунків</h2>
+      <span>останні 30</span>
+    </div>
 
     <input id="searchHistory" class="search" placeholder="Пошук по даті, сумі, коментарю...">
 
