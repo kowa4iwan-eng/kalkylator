@@ -1,67 +1,99 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Калькулятор каси</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Підрахунок готівки в касі</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>💶 Калькулятор каси</h1>
-      <p>Купюри, монети, друк і архів перерахунків</p>
-    </header>
 
-    <section class="panel">
-      <div class="top-row">
-        <label>
-          Дата і час перерахунку
-          <input type="datetime-local" id="countDate">
-        </label>
+<div class="app">
 
-        <label>
-          Коментар
-          <input type="text" id="comment" placeholder="Наприклад: каса вечір">
-        </label>
+  <header class="header">
+    <div>
+      <h1>💼 Підрахунок готівки в касі</h1>
+      <p>Швидко. Зручно. Точно.</p>
+    </div>
+
+    <div class="clock">
+      <div id="liveDate">--.--.----</div>
+      <strong id="liveTime">--:--:--</strong>
+      <small id="liveDay">---</small>
+    </div>
+  </header>
+
+  <section class="card form-card">
+    <label>
+      Назва каси
+      <input id="cashName" placeholder="Наприклад: Каса №1">
+    </label>
+
+    <label>
+      Очікувана сума в касі
+      <input id="expected" type="number" step="0.01" placeholder="Наприклад: 12500.50">
+    </label>
+
+    <label class="wide">
+      Коментар
+      <input id="comment" placeholder="Наприклад: вечірній перерахунок, ПІБ касира...">
+    </label>
+  </section>
+
+  <section class="card">
+    <h2>Купюри / гривні</h2>
+
+    <div class="table">
+      <div class="table-head">
+        <div>Номінал</div>
+        <div>Кількість</div>
+        <div>Сума</div>
       </div>
 
-      <div class="grid" id="moneyGrid"></div>
+      <div id="moneyRows"></div>
+    </div>
+  </section>
 
-      <div class="total-box">
-        <span>Загальна сума</span>
-        <strong id="total">0.00 €</strong>
-      </div>
+  <section class="card">
+    <h2>Додатково</h2>
 
-      <div class="buttons">
-        <button onclick="saveCount()">💾 Зберегти</button>
-        <button onclick="printReport()">🖨️ Друк</button>
-        <button onclick="clearForm()">🧹 Очистити</button>
-        <button onclick="exportJSON()">⬇️ Експорт JSON</button>
-        <button onclick="exportCSV()">⬇️ Експорт CSV</button>
-        <label class="import">
-          ⬆️ Імпорт JSON
-          <input type="file" accept=".json" onchange="importJSON(event)">
-        </label>
-      </div>
-    </section>
+    <div class="table">
+      <div id="extraRows"></div>
+    </div>
+  </section>
 
-    <section class="panel">
-      <h2>📁 Архів перерахунків</h2>
+  <section class="summary">
+    <div>
+      <span>Очікувана сума</span>
+      <strong id="expectedTotal">0,00 грн</strong>
+    </div>
 
-      <div class="top-row">
-        <label>
-          Вибрати перерахунок
-          <select id="historySelect" onchange="loadSelected()"></select>
-        </label>
+    <div>
+      <span>Фактично пораховано</span>
+      <strong class="green" id="actualTotal">0,00 грн</strong>
+    </div>
 
-        <button class="danger" onclick="deleteSelected()">🗑️ Видалити</button>
-      </div>
+    <div>
+      <span>Різниця</span>
+      <strong id="differenceTotal">0,00 грн</strong>
+    </div>
+  </section>
 
-      <div id="historyInfo" class="history-info"></div>
-    </section>
+  <div class="actions">
+    <button onclick="printReport()">🖨️ Друк</button>
+    <button class="save" onclick="saveCount()">💾 Зберегти</button>
   </div>
 
-  <script src="script.js"></script>
+  <section class="card">
+    <h2>📁 Архів перерахунків</h2>
+
+    <input id="searchHistory" class="search" placeholder="Пошук по даті, сумі, коментарю...">
+
+    <div id="historyList" class="history"></div>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
