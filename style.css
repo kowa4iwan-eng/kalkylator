@@ -15,6 +15,21 @@ body {
   padding: 20px;
 }
 
+.visitor-counter {
+  position: fixed;
+  right: 10px;
+  bottom: 8px;
+  z-index: 999;
+  font-size: 11px;
+  color: #3f4d67;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #dce6f6;
+  padding: 4px 7px;
+  border-radius: 20px;
+  opacity: 0.65;
+  user-select: none;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -40,6 +55,13 @@ p {
   padding: 16px 28px;
   text-align: center;
   box-shadow: 0 10px 30px rgba(20,70,140,.08);
+  min-width: 190px;
+}
+
+.clock-label {
+  font-size: 12px;
+  color: #60708f;
+  margin-bottom: 5px;
 }
 
 .clock strong {
@@ -81,6 +103,7 @@ input {
   padding: 13px;
   font-size: 16px;
   outline: none;
+  background: #fff;
 }
 
 input:focus {
@@ -139,10 +162,17 @@ h2 {
   background: #eef3fb;
 }
 
+.nominal img.coin-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+}
+
 .nominal small {
   display: block;
   font-weight: normal;
   color: #6c7890;
+  margin-top: 3px;
 }
 
 .sum {
@@ -198,7 +228,7 @@ h2 {
 
 .actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 18px;
   margin-bottom: 18px;
 }
@@ -216,6 +246,10 @@ button {
 
 button.save {
   background: linear-gradient(135deg, #11984a, #20b869);
+}
+
+button.clear {
+  background: linear-gradient(135deg, #64748b, #334155);
 }
 
 .search {
@@ -242,6 +276,10 @@ button.save {
   color: #0047a8;
 }
 
+#printArea {
+  display: none;
+}
+
 @media (max-width: 700px) {
   .app {
     padding: 10px;
@@ -258,6 +296,7 @@ button.save {
 
   .clock {
     margin-top: 15px;
+    width: 100%;
   }
 
   .form-card {
@@ -283,6 +322,11 @@ button.save {
     height: 50px;
   }
 
+  .nominal img.coin-img {
+    width: 58px;
+    height: 58px;
+  }
+
   .sum {
     text-align: left;
     font-size: 18px;
@@ -303,23 +347,115 @@ button.save {
 }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 7mm;
+  }
+
   body {
     background: white;
+    color: black;
   }
 
-  .actions,
-  .history,
-  .search {
-    display: none;
+  .app,
+  .visitor-counter {
+    display: none !important;
   }
 
-  .card,
-  .summary,
-  .clock {
-    box-shadow: none;
+  #printArea {
+    display: block !important;
   }
 
-  input {
-    border: none;
+  .print-sheet {
+    width: 100%;
+    font-family: Arial, sans-serif;
+    color: #111;
+    font-size: 10.5px;
+  }
+
+  .print-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .print-subtitle {
+    text-align: center;
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .print-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .print-box {
+    border: 1px solid #222;
+    padding: 5px;
+    min-height: 24px;
+  }
+
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 7px;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #222;
+    padding: 3px 5px;
+    text-align: left;
+  }
+
+  .print-table th {
+    background: #efefef;
+  }
+
+  .print-right {
+    text-align: right !important;
+  }
+
+  .print-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .print-summary div {
+    border: 1px solid #222;
+    padding: 7px;
+    text-align: center;
+  }
+
+  .print-summary strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 15px;
+  }
+
+  .print-comment {
+    border: 1px solid #222;
+    padding: 6px;
+    min-height: 34px;
+    margin-top: 8px;
+  }
+
+  .print-signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 35px;
+    margin-top: 18px;
+  }
+
+  .print-signatures div {
+    border-top: 1px solid #222;
+    text-align: center;
+    padding-top: 4px;
   }
 }
