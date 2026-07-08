@@ -1,22 +1,30 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Підрахунок готівки в касі</title>
-  <link rel="stylesheet" href="style.css">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+<div class="visitor-counter" title="Унікальні відвідувачі сайту">
+  👁 <span id="visitorCounter">—</span>
+</div>
 
 <div class="app">
 
   <header class="header">
     <div>
       <h1>💼 Підрахунок готівки в касі</h1>
-      <p>Швидко. Зручно. Точно.</p>
+      <p>Швидко. Зручно. Точно. Київський час.</p>
     </div>
 
     <div class="clock">
+      <div class="clock-label">Київський час</div>
       <div id="liveDate">--.--.----</div>
       <strong id="liveTime">--:--:--</strong>
       <small id="liveDay">---</small>
@@ -31,7 +39,7 @@
 
     <label>
       Очікувана сума в касі
-      <input id="expected" type="number" step="0.01" placeholder="Наприклад: 12500.50">
+      <input id="expected" type="text" inputmode="decimal" placeholder="Наприклад: 12500,50">
     </label>
 
     <label class="wide">
@@ -41,7 +49,7 @@
   </section>
 
   <section class="card">
-    <h2>Купюри / гривні</h2>
+    <h2>Купюри та монети</h2>
 
     <div class="table">
       <div class="table-head">
@@ -81,6 +89,7 @@
 
   <div class="actions">
     <button onclick="printReport()">🖨️ Друк</button>
+    <button class="clear" onclick="clearForm()">🧹 Очистити</button>
     <button class="save" onclick="saveCount()">💾 Зберегти</button>
   </div>
 
@@ -93,6 +102,8 @@
   </section>
 
 </div>
+
+<div id="printArea"></div>
 
 <script src="script.js"></script>
 </body>
